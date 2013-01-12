@@ -1,0 +1,7 @@
+*.hex
+*.o
+*.sh
+*.geany
+*.eep
+*.elf
+*.log
