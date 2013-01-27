@@ -370,7 +370,7 @@ void read_sensors(uint8_t sensorSelect){
 void draw_screen(uint8_t drawTextOnlyFlag){
   switch (sensorSelect){
     case 1 :    sprintf(mp_buffer, "%+05.1f g/m3", sht75.AbsolutHumidity);
-                LCD_ShowString(82, 117, YELLOW3, mp_buffer);
+                LCD_ShowString(88, 117, YELLOW3, mp_buffer);
                 sprintf(mp_buffer, "T  %+05.1fC", sht75.Temperature);
                 LCD_ShowString(0, 0, YELLOW1, mp_buffer);
                 sprintf(mp_buffer, "RH %+05.1f%%", sht75.Humidity);
@@ -379,7 +379,7 @@ void draw_screen(uint8_t drawTextOnlyFlag){
                 LCD_ShowString(0, 16, YELLOW3, mp_buffer);
                 break;
     case 2 :    sprintf(mp_buffer, "%+05.1f g/m3", sht75.AbsolutHumidity);
-                LCD_ShowString(82, 65, GREEN3, mp_buffer);
+                LCD_ShowString(12, 117, GREEN3, mp_buffer);
                 sprintf(mp_buffer, "T  %+05.1fC", sht75.Temperature);
                 LCD_ShowString(85, 0, GREEN1, mp_buffer);
                 sprintf(mp_buffer, "RH %+05.1f%%", sht75.Humidity);
