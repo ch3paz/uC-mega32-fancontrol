@@ -286,10 +286,10 @@ int main(){
        * "I'm alive" message.
        */
       if (cntr_isr == 2){
-        LCD_ShowString(70, 11, BLUE, "*");
+        LCD_ShowString(72, 11, BLUE, "*");
       }
       if (cntr_isr == 5){
-        LCD_ShowString(70, 11, BLUE, "#");
+        LCD_ShowString(72, 11, BLUE, "#");
         for (sensorSelect = 1; sensorSelect <=2; sensorSelect++){
           read_sensors(sensorSelect);
           drawTextOnlyFlag = TRUE;
@@ -388,17 +388,7 @@ void draw_screen(uint8_t drawTextOnlyFlag){
                 sprintf(mp_buffer, "DP%5.1fC", sht75.Dewpoint);
                 LCD_ShowString(95, 16, GREEN3, mp_buffer);
                 sprintf(mp_buffer, "%i", brightness);
-                LCD_ShowString(70, 3, LILAC, mp_buffer);
-
-                /* Draw a "next interval in $foo"-timeline on the display */
-                uint8_t step = 160/values.sensor_delay;
-                uint8_t xp = graph.x_pos;
-
-                while (step != 0){
-                  LCD_setPixel(xp, 118, BLUE);
-                  xp++;
-                  step--;
-                }
+                LCD_ShowString(72, 3, LILAC, mp_buffer);
                 break;
   }
   /* Text should be more often updated than the graph */
@@ -447,6 +437,15 @@ void draw_screen(uint8_t drawTextOnlyFlag){
         /* Draw a "fan is running"-timeline on the display*/
         if (fan.running == 1){
           LCD_setPixel(graph.x_pos, 115, BLACK);
+        }
+
+        /* Draw a "next interval in $foo"-timeline on the display */
+        uint8_t step = 160/values.sensor_delay;
+        uint8_t stepper = 0;
+
+        while (stepper != step){
+          LCD_setPixel(graph.x_pos+stepper, 127, BLUE);
+          stepper++;
         }
 
         graph.x_pos++;
