@@ -116,7 +116,7 @@
 #define YELLOW1 7
 #define YELLOW2 8
 #define YELLOW3 9
-#define NEWCOLOR 10 // FIXME give color name
+#define BLUE 10
 
 #define FILENAME "log.csv" /* Filename written to SD */
 #define BUTTONPIN 7        /* ADC pin, connection of Ejectswitch */
@@ -286,11 +286,11 @@ int main(){
        * "I'm alive" message.
        */
       if (cntr_isr == 2){
-        LCD_ShowString(150, 24, NEWCOLOR, "*");
+        LCD_ShowString(70, 11, BLUE, "*");
       }
       if (cntr_isr == 5){
         for (sensorSelect = 1; sensorSelect <=2; sensorSelect++){
-          LCD_ShowString(150, 24, NEWCOLOR, "#");
+          LCD_ShowString(70, 11, BLUE, "#");
           read_sensors(sensorSelect);
           drawTextOnlyFlag = TRUE;
           draw_screen(drawTextOnlyFlag);
@@ -370,25 +370,25 @@ void read_sensors(uint8_t sensorSelect){
 /* Drop values to Display */
 void draw_screen(uint8_t drawTextOnlyFlag){
   switch (sensorSelect){
-    case 1 :    sprintf(mp_buffer, "%5.1f g/m3", sht75.AbsolutHumidity);
+    case 1 :    sprintf(mp_buffer, "%4.1f g/m3", sht75.AbsolutHumidity);
                 LCD_ShowString(0, 117, YELLOW3, mp_buffer);
-                sprintf(mp_buffer, "T  %5.1fC", sht75.Temperature);
+                sprintf(mp_buffer, "T %5.1fC", sht75.Temperature);
                 LCD_ShowString(0, 0, YELLOW1, mp_buffer);
-                sprintf(mp_buffer, "RH %5.1f%%", sht75.Humidity);
+                sprintf(mp_buffer, "RH%5.1f%%", sht75.Humidity);
                 LCD_ShowString(0, 8, YELLOW2, mp_buffer);
-                sprintf(mp_buffer, "DP %5.1fC", sht75.Dewpoint);
+                sprintf(mp_buffer, "DP%5.1fC", sht75.Dewpoint);
                 LCD_ShowString(0, 16, YELLOW3, mp_buffer);
                 break;
-    case 2 :    sprintf(mp_buffer, "%5.1f g/m3", sht75.AbsolutHumidity);
+    case 2 :    sprintf(mp_buffer, "%4.1f g/m3", sht75.AbsolutHumidity);
                 LCD_ShowString(80, 117, GREEN3, mp_buffer);
-                sprintf(mp_buffer, "T  %5.1fC", sht75.Temperature);
-                LCD_ShowString(85, 0, GREEN1, mp_buffer);
-                sprintf(mp_buffer, "RH %5.1f%%", sht75.Humidity);
-                LCD_ShowString(85, 8, GREEN2, mp_buffer);
-                sprintf(mp_buffer, "DP %5.1fC", sht75.Dewpoint);
-                LCD_ShowString(85, 16, GREEN3, mp_buffer);
+                sprintf(mp_buffer, "T %5.1fC", sht75.Temperature);
+                LCD_ShowString(95, 0, GREEN1, mp_buffer);
+                sprintf(mp_buffer, "RH%5.1f%%", sht75.Humidity);
+                LCD_ShowString(95, 8, GREEN2, mp_buffer);
+                sprintf(mp_buffer, "DP%5.1fC", sht75.Dewpoint);
+                LCD_ShowString(95, 16, GREEN3, mp_buffer);
                 sprintf(mp_buffer, "%i", brightness);
-                LCD_ShowString(155, 24, NEWCOLOR, mp_buffer);
+                LCD_ShowString(70, 3, LILAC, mp_buffer);
                 break;
   }
   /* Text should be more often updated than the graph */
@@ -589,7 +589,6 @@ void open_file(){
     else{
       /* Append header to file (only into the first line) */
       if (write_offset == 0){
-//        sprintf(mp_buffer, header); //FIXME DONE? Write header instead copying crap??
 
         if(fat_write_file(fd, (uint8_t*) header, strlen(header)) !=
           strlen(header)){

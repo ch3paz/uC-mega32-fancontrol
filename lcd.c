@@ -37,7 +37,7 @@ uint colors[]={
   0xF4A1, /* yellow 1   */
   0xF3C7, /* yellow 2   */
   0xFAAC, /* yellow 3   */
-  0x11BB  /* FIXME give color name */
+  0x1191  /* blue       */
 };
 
 /* Command for writing to display (16Bit) --> 0: command 1: data */
