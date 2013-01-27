@@ -369,22 +369,22 @@ void read_sensors(uint8_t sensorSelect){
 /* Drop values to Display */
 void draw_screen(uint8_t drawTextOnlyFlag){
   switch (sensorSelect){
-    case 1 :    sprintf(mp_buffer, "%02.1f g/m3", sht75.AbsolutHumidity);
+    case 1 :    sprintf(mp_buffer, "%+05.1f g/m3", sht75.AbsolutHumidity);
                 LCD_ShowString(82, 117, YELLOW3, mp_buffer);
-                sprintf(mp_buffer, "T  %02.1fC", sht75.Temperature);
+                sprintf(mp_buffer, "T  %+05.1fC", sht75.Temperature);
                 LCD_ShowString(0, 0, YELLOW1, mp_buffer);
-                sprintf(mp_buffer, "RH %02.1f%%", sht75.Humidity);
+                sprintf(mp_buffer, "RH %+05.1f%%", sht75.Humidity);
                 LCD_ShowString(0, 8, YELLOW2, mp_buffer);
-                sprintf(mp_buffer, "DP %+2.1fC", sht75.Dewpoint);
+                sprintf(mp_buffer, "DP %+05.1fC", sht75.Dewpoint);
                 LCD_ShowString(0, 16, YELLOW3, mp_buffer);
                 break;
-    case 2 :    sprintf(mp_buffer, "%02.1f g/m3", sht75.AbsolutHumidity);
+    case 2 :    sprintf(mp_buffer, "%+05.1f g/m3", sht75.AbsolutHumidity);
                 LCD_ShowString(82, 65, GREEN3, mp_buffer);
-                sprintf(mp_buffer, "T  %02.1fC", sht75.Temperature);
+                sprintf(mp_buffer, "T  %+05.1fC", sht75.Temperature);
                 LCD_ShowString(85, 0, GREEN1, mp_buffer);
-                sprintf(mp_buffer, "RH %02.1f%%", sht75.Humidity);
+                sprintf(mp_buffer, "RH %+05.1f%%", sht75.Humidity);
                 LCD_ShowString(85, 8, GREEN2, mp_buffer);
-                sprintf(mp_buffer, "DP %+2.1fC", sht75.Dewpoint);
+                sprintf(mp_buffer, "DP %+05.1fC", sht75.Dewpoint);
                 LCD_ShowString(85, 16, GREEN3, mp_buffer);
                 sprintf(mp_buffer, "%i", brightness);
                 LCD_ShowString(2, 117, LILAC, mp_buffer);
@@ -894,7 +894,7 @@ void check_button_pressed(uint8_t doLogging, uint8_t powerDisplayFlag,
     }
   }
 
-  /* Invert display toggle */
+  /* Invert display toggle */ //FIXME Seems this ifelseif is run 2 times?!
   if (check_invert_display() == TRUE){
     if (invertDisplayFlag == FALSE){
       invertDisplayFlag = TRUE;
