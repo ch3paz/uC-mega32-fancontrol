@@ -289,8 +289,8 @@ int main(){
         LCD_ShowString(70, 11, BLUE, "*");
       }
       if (cntr_isr == 5){
+        LCD_ShowString(70, 11, BLUE, "#");
         for (sensorSelect = 1; sensorSelect <=2; sensorSelect++){
-          LCD_ShowString(70, 11, BLUE, "#");
           read_sensors(sensorSelect);
           drawTextOnlyFlag = TRUE;
           draw_screen(drawTextOnlyFlag);
@@ -389,6 +389,16 @@ void draw_screen(uint8_t drawTextOnlyFlag){
                 LCD_ShowString(95, 16, GREEN3, mp_buffer);
                 sprintf(mp_buffer, "%i", brightness);
                 LCD_ShowString(70, 3, LILAC, mp_buffer);
+
+                /* Draw a "next interval in $foo"-timeline on the display */
+                uint8_t step = 160/values.sensor_delay;
+                uint8_t xp = graph.x_pos;
+
+                while (step != 0){
+                  LCD_setPixel(xp, 118, BLUE);
+                  xp++;
+                  step--;
+                }
                 break;
   }
   /* Text should be more often updated than the graph */
@@ -402,9 +412,6 @@ void draw_screen(uint8_t drawTextOnlyFlag){
       graph.y_humidity = sht75.Humidity;
       graph.y_dewpoint = sht75.Dewpoint;
 
-      /* "Offset" the both datalines.
-       * x,y in LCD_setPixel is !!INVERTED THERE!!
-       */
       if (sensorSelect == 1){
         /* NOTICE
          * Delete pixels before writeing new ones.
@@ -425,7 +432,9 @@ void draw_screen(uint8_t drawTextOnlyFlag){
             }
           }
         }
-
+        /* "Offset" the both datalines.
+         * x,y in LCD_setPixel is !!INVERTED THERE!!
+         */
         LCD_setPixel(graph.x_pos, graph.y_temp+70, YELLOW1);
         LCD_setPixel(graph.x_pos, graph.y_humidity+20, YELLOW2);
         LCD_setPixel(graph.x_pos, graph.y_dewpoint+80, YELLOW3);
