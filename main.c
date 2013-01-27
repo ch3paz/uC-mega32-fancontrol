@@ -370,22 +370,22 @@ void read_sensors(uint8_t sensorSelect){
 /* Drop values to Display */
 void draw_screen(uint8_t drawTextOnlyFlag){
   switch (sensorSelect){
-    case 1 :    sprintf(mp_buffer, "%05.1f g/m3", sht75.AbsolutHumidity);
-                LCD_ShowString(7, 117, YELLOW3, mp_buffer);
-                sprintf(mp_buffer, "T  %05.1fC", sht75.Temperature);
+    case 1 :    sprintf(mp_buffer, "%5.1f g/m3", sht75.AbsolutHumidity);
+                LCD_ShowString(0, 117, YELLOW3, mp_buffer);
+                sprintf(mp_buffer, "T  %5.1fC", sht75.Temperature);
                 LCD_ShowString(0, 0, YELLOW1, mp_buffer);
-                sprintf(mp_buffer, "RH %05.1f%%", sht75.Humidity);
+                sprintf(mp_buffer, "RH %5.1f%%", sht75.Humidity);
                 LCD_ShowString(0, 8, YELLOW2, mp_buffer);
-                sprintf(mp_buffer, "DP %05.1fC", sht75.Dewpoint);
+                sprintf(mp_buffer, "DP %5.1fC", sht75.Dewpoint);
                 LCD_ShowString(0, 16, YELLOW3, mp_buffer);
                 break;
-    case 2 :    sprintf(mp_buffer, "%05.1f g/m3", sht75.AbsolutHumidity);
-                LCD_ShowString(83, 117, GREEN3, mp_buffer);
-                sprintf(mp_buffer, "T  %05.1fC", sht75.Temperature);
+    case 2 :    sprintf(mp_buffer, "%5.1f g/m3", sht75.AbsolutHumidity);
+                LCD_ShowString(80, 117, GREEN3, mp_buffer);
+                sprintf(mp_buffer, "T  %5.1fC", sht75.Temperature);
                 LCD_ShowString(85, 0, GREEN1, mp_buffer);
-                sprintf(mp_buffer, "RH %05.1f%%", sht75.Humidity);
+                sprintf(mp_buffer, "RH %5.1f%%", sht75.Humidity);
                 LCD_ShowString(85, 8, GREEN2, mp_buffer);
-                sprintf(mp_buffer, "DP %05.1fC", sht75.Dewpoint);
+                sprintf(mp_buffer, "DP %5.1fC", sht75.Dewpoint);
                 LCD_ShowString(85, 16, GREEN3, mp_buffer);
                 sprintf(mp_buffer, "%i", brightness);
                 LCD_ShowString(155, 24, NEWCOLOR, mp_buffer);
