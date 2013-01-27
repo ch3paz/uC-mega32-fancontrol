@@ -439,15 +439,6 @@ void draw_screen(uint8_t drawTextOnlyFlag){
           LCD_setPixel(graph.x_pos, 115, BLACK);
         }
 
-        /* Draw a "next interval in $foo"-timeline on the display */
-        uint8_t step = 160/values.sensor_delay;
-        uint8_t stepper = 0;
-
-        while (stepper != step){
-          LCD_setPixel(graph.x_pos+stepper, 127, BLUE);
-          stepper++;
-        }
-
         graph.x_pos++;
       }
     }
