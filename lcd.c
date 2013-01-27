@@ -25,7 +25,7 @@
 #define FONTOFFSET 0  /* Depends on codepage/fonttype */
 #define FONTARRAYNAME font
 
-/* Colors --> colors[0...7] */
+/* Colors --> colors[0...] */
 uint colors[]={
   0xf800, /* red        */
   0xf81f, /* lilac      */
@@ -36,7 +36,8 @@ uint colors[]={
   0x09a0, /* green 3    */
   0xF4A1, /* yellow 1   */
   0xF3C7, /* yellow 2   */
-  0xFAAC  /* yellow 3   */
+  0xFAAC, /* yellow 3   */
+  0x11BB  /* FIXME give color name */
 };
 
 /* Command for writing to display (16Bit) --> 0: command 1: data */
