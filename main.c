@@ -99,10 +99,10 @@
 
 /* Defaults for default_value_init() */
 #define HADIFF 1.5
-#define RHMIN 84.0
+#define RHMIN 83.0
 #define TMIN 10.0
 #define DELTAT 0.5
-#define DELTARH 2.0
+#define DELTARH 1.5
 #define DELAY 20 /* --> 20*30s=600s , look at ISR/main() */
 
 /* Colors for LCD */
@@ -384,12 +384,15 @@ void draw_screen(uint8_t drawTextOnlyFlag){
          * Delete pixels before writeing new ones.
          * Hided here because we want to delete them only once at the
          * first call of draw_screen()!
-         *
-         * Delete also some text because the graph _may_ drift too
-         * much down.
-         *
-         * Vertikal marker line */
-        for (int i = 0; i <= 116; i++){
+         */
+
+        /* Delete pixels if graph has gone down into textarea */ //FIXME works?
+        for (int i = 0; i <= 24; i++){
+          LCD_setPixel(graph.x_pos, i, WHITE);
+        }
+
+        /* Vertikal marker line */
+        for (int i = 25; i <= 116; i++){
           LCD_setPixel(graph.x_pos, i, WHITE);
           LCD_setPixel(graph.x_pos+1, i, WHITE);
           LCD_setPixel(graph.x_pos+2, i, RED);
@@ -406,8 +409,8 @@ void draw_screen(uint8_t drawTextOnlyFlag){
          * x,y in LCD_setPixel is !!INVERTED THERE!!
          */
         LCD_setPixel(graph.x_pos, graph.y_temp+65, YELLOW1);
-        LCD_setPixel(graph.x_pos, graph.y_humidity+15, YELLOW2);
-        LCD_setPixel(graph.x_pos, graph.y_dewpoint+75, YELLOW3);
+        LCD_setPixel(graph.x_pos, graph.y_humidity+20, YELLOW2);
+        LCD_setPixel(graph.x_pos, graph.y_dewpoint+80, YELLOW3);
       }
       else{
         LCD_setPixel(graph.x_pos, graph.y_temp+60, GREEN1);
@@ -420,7 +423,7 @@ void draw_screen(uint8_t drawTextOnlyFlag){
         }
 
         /* Draw a "so much light"-line on the display */
-        LCD_setPixel(graph.x_pos, graph.y_brightness*10, LILAC);
+        LCD_setPixel(graph.x_pos, graph.y_brightness*11, LILAC);
 
         graph.x_pos++;
       }
