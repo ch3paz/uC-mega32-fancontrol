@@ -241,7 +241,6 @@ volatile uint8_t cntr_isr = 0;   /* Counting from 1 to 5 (5 == 30s gone) */
 volatile uint8_t cntr_graph = 0; /* For updateing the graph (++ every 1s)*/
 uint8_t sensorSelect = 1;        /* Sensor 1,2(...3,4,5,)                */
 uint8_t firstCycleFlag = TRUE;   /* To override deltaT the first time    */
-uint16_t brightness = 0; /* For LDR - day/night?                         */
 uint32_t lastLines = 0;  /* How many records should be send? Default all */
 char mp_buffer[45];      /* Multipurpose buffer for stringoperations     */
 char uart_rcv[45];       /* Receive buffer for incoming data             */
@@ -352,7 +351,7 @@ void read_sensors(uint8_t sensorSelect){
     fan.haIn = sht75.AbsolutHumidity;
     fan.rhIn = sht75.Humidity;
     fan.tempIn = sht75.Temperature;
-    brightness = adcReadOnce(6)/100;
+    graph.y_brightness = adcReadOnce(6)/100;
   }
   else{
     fan.haOut = sht75.AbsolutHumidity;
@@ -369,6 +368,68 @@ void read_sensors(uint8_t sensorSelect){
 
 /* Drop values to Display */
 void draw_screen(uint8_t drawTextOnlyFlag){
+  /* Text should be more often updated than the graph */
+  if (drawTextOnlyFlag == FALSE){
+    /* Draw graph, display is 128x160. I'm useing it as 160x128. */
+    if(graph.x_pos < 160){
+      /* Get values "between $foo and $bar" for the display,
+       * made it more "sensible" (foo*1.3)
+       */
+      graph.y_temp = sht75.Temperature; // e.g. foo*1,25
+      graph.y_humidity = sht75.Humidity;
+      graph.y_dewpoint = sht75.Dewpoint;
+
+      if (sensorSelect == 1){
+        /* NOTICE
+         * Delete pixels before writeing new ones.
+         * Hided here because we want to delete them only once at the
+         * first call of draw_screen()!
+         *
+         * Delete also some text because the graph _may_ drift too
+         * much down.
+         *
+         * Vertikal marker line */
+        for (int i = 0; i <= 116; i++){
+          LCD_setPixel(graph.x_pos, i, WHITE);
+          LCD_setPixel(graph.x_pos+1, i, WHITE);
+          LCD_setPixel(graph.x_pos+2, i, RED);
+
+          /* Horizontal "legs" on top and bottom of vertikal marker */
+          if (i == 25){
+            for (int j = graph.x_pos+3; j < graph.x_pos+6; j++){
+              LCD_setPixel(j, i, RED);
+              LCD_setPixel(j, i+91, RED);
+            }
+          }
+        }
+        /* "Offset" the both datalines.
+         * x,y in LCD_setPixel is !!INVERTED THERE!!
+         */
+        LCD_setPixel(graph.x_pos, graph.y_temp+65, YELLOW1);
+        LCD_setPixel(graph.x_pos, graph.y_humidity+15, YELLOW2);
+        LCD_setPixel(graph.x_pos, graph.y_dewpoint+75, YELLOW3);
+      }
+      else{
+        LCD_setPixel(graph.x_pos, graph.y_temp+60, GREEN1);
+        LCD_setPixel(graph.x_pos, graph.y_humidity-20, GREEN2);
+        LCD_setPixel(graph.x_pos, graph.y_dewpoint+70, GREEN3);
+
+        /* Draw a "fan is running"-timeline on the display*/
+        if (fan.running == 1){
+          LCD_setPixel(graph.x_pos, 115, BLACK);
+        }
+
+        /* Draw a "so much light"-line on the display */
+        LCD_setPixel(graph.x_pos, graph.y_brightness*10, LILAC);
+
+        graph.x_pos++;
+      }
+    }
+    else{
+      graph.x_pos = 0;
+    }
+  }
+  /* Update text on every call */
   switch (sensorSelect){
     case 1 :    sprintf(mp_buffer, "%4.1f g/m3", sht75.AbsolutHumidity);
                 LCD_ShowString(0, 117, YELLOW3, mp_buffer);
@@ -387,64 +448,9 @@ void draw_screen(uint8_t drawTextOnlyFlag){
                 LCD_ShowString(95, 8, GREEN2, mp_buffer);
                 sprintf(mp_buffer, "DP%5.1fC", sht75.Dewpoint);
                 LCD_ShowString(95, 16, GREEN3, mp_buffer);
-                sprintf(mp_buffer, "%i", brightness);
+                sprintf(mp_buffer, "%i", graph.y_brightness);
                 LCD_ShowString(72, 3, LILAC, mp_buffer);
                 break;
-  }
-  /* Text should be more often updated than the graph */
-  if (drawTextOnlyFlag == FALSE){
-    /* Draw graph, display is 128x160. I'm useing it as 160x128. */
-    if(graph.x_pos < 160){
-      /* Get values "between $foo and $bar" for the display,
-       * made it more "sensible" (foo*1.3)
-       */
-      graph.y_temp = sht75.Temperature; // e.g. foo*1,25
-      graph.y_humidity = sht75.Humidity;
-      graph.y_dewpoint = sht75.Dewpoint;
-
-      if (sensorSelect == 1){
-        /* NOTICE
-         * Delete pixels before writeing new ones.
-         * Hided here because we want to delete them only once at the
-         * first call of draw_screen()!
-         *
-         * Vertikal marker line */
-        for (int i = 25; i <= 116; i++){
-          LCD_setPixel(graph.x_pos, i, WHITE);
-          LCD_setPixel(graph.x_pos+1, i, WHITE);
-          LCD_setPixel(graph.x_pos+2, i, RED);
-
-          /* Horizontal "legs" on top and bottom of vertikal marker */
-          if (i == 25){
-            for (int j = graph.x_pos+3; j < graph.x_pos+6; j++){
-              LCD_setPixel(j, i, RED);
-              LCD_setPixel(j, i+91, RED);
-            }
-          }
-        }
-        /* "Offset" the both datalines.
-         * x,y in LCD_setPixel is !!INVERTED THERE!!
-         */
-        LCD_setPixel(graph.x_pos, graph.y_temp+70, YELLOW1);
-        LCD_setPixel(graph.x_pos, graph.y_humidity+20, YELLOW2);
-        LCD_setPixel(graph.x_pos, graph.y_dewpoint+80, YELLOW3);
-      }
-      else{
-        LCD_setPixel(graph.x_pos, graph.y_temp+50, GREEN1);
-        LCD_setPixel(graph.x_pos, graph.y_humidity-30, GREEN2);
-        LCD_setPixel(graph.x_pos, graph.y_dewpoint+60, GREEN3);
-
-        /* Draw a "fan is running"-timeline on the display*/
-        if (fan.running == 1){
-          LCD_setPixel(graph.x_pos, 115, BLACK);
-        }
-
-        graph.x_pos++;
-      }
-    }
-    else{
-      graph.x_pos = 0;
-    }
   }
 }
 
@@ -618,7 +624,7 @@ void write_data_to_file(uint8_t sensorSelect){
           sht75.Humidity,
           sht75.AbsolutHumidity,
           sht75.Dewpoint,
-          brightness,
+          graph.y_brightness,
           fan.running
           );
   }
