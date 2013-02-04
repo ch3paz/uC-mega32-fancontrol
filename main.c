@@ -285,10 +285,10 @@ int main(){
        * "I'm alive" message.
        */
       if (cntr_isr == 2){
-        LCD_ShowString(72, 11, BLUE, "*");
+        LCD_ShowString(72, 8, BLUE, "*");
       }
       if (cntr_isr == 5){
-        LCD_ShowString(72, 11, BLUE, "#");
+        LCD_ShowString(72, 8, BLUE, "#");
         for (sensorSelect = 1; sensorSelect <=2; sensorSelect++){
           read_sensors(sensorSelect);
           drawTextOnlyFlag = TRUE;
@@ -408,13 +408,13 @@ void draw_screen(uint8_t drawTextOnlyFlag){
         /* "Offset" the both datalines.
          * x,y in LCD_setPixel is !!INVERTED THERE!!
          */
-        LCD_setPixel(graph.x_pos, graph.y_temp+65, YELLOW1);
-        LCD_setPixel(graph.x_pos, graph.y_humidity+20, YELLOW2);
-        LCD_setPixel(graph.x_pos, graph.y_dewpoint+80, YELLOW3);
+        LCD_setPixel(graph.x_pos, graph.y_temp+55, YELLOW1);
+        LCD_setPixel(graph.x_pos, graph.y_humidity-10, YELLOW2);
+        LCD_setPixel(graph.x_pos, graph.y_dewpoint+70, YELLOW3);
       }
       else{
-        LCD_setPixel(graph.x_pos, graph.y_temp+60, GREEN1);
-        LCD_setPixel(graph.x_pos, graph.y_humidity-20, GREEN2);
+        LCD_setPixel(graph.x_pos, graph.y_temp+55, GREEN1);
+        LCD_setPixel(graph.x_pos, graph.y_humidity-10, GREEN2);
         LCD_setPixel(graph.x_pos, graph.y_dewpoint+70, GREEN3);
 
         /* Draw a "fan is running"-timeline on the display*/
@@ -423,7 +423,7 @@ void draw_screen(uint8_t drawTextOnlyFlag){
         }
 
         /* Draw a "so much light"-line on the display */
-        LCD_setPixel(graph.x_pos, graph.y_brightness*11, LILAC);
+        LCD_setPixel(graph.x_pos, graph.y_brightness+104, LILAC);
 
         graph.x_pos++;
       }
@@ -452,7 +452,7 @@ void draw_screen(uint8_t drawTextOnlyFlag){
                 sprintf(mp_buffer, "DP%5.1fC", sht75.Dewpoint);
                 LCD_ShowString(95, 16, GREEN3, mp_buffer);
                 sprintf(mp_buffer, "%i", graph.y_brightness);
-                LCD_ShowString(72, 3, LILAC, mp_buffer);
+                LCD_ShowString(72, 0, LILAC, mp_buffer);
                 break;
   }
 }
