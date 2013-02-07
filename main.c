@@ -410,16 +410,20 @@ void draw_screen(uint8_t drawTextOnlyFlag){
          */
         LCD_setPixel(graph.x_pos, graph.y_temp+55, YELLOW1);
         LCD_setPixel(graph.x_pos, graph.y_humidity-10, YELLOW2);
-        LCD_setPixel(graph.x_pos, graph.y_dewpoint+70, YELLOW3);
+        /* NOTICE: Think i don't need the dewpoint on display.
+         * LCD_setPixel(graph.x_pos, graph.y_dewpoint+70, YELLOW3);
+         */
       }
       else{
         LCD_setPixel(graph.x_pos, graph.y_temp+55, GREEN1);
         LCD_setPixel(graph.x_pos, graph.y_humidity-10, GREEN2);
-        LCD_setPixel(graph.x_pos, graph.y_dewpoint+70, GREEN3);
+        /* NOTICE: Think i don't need the dewpoint on display.
+         * LCD_setPixel(graph.x_pos, graph.y_dewpoint+70, GREEN3);
+         */
 
         /* Draw a "fan is running"-timeline on the display*/
         if (fan.running == 1){
-          LCD_setPixel(graph.x_pos, 115, BLACK);
+          LCD_setPixel(graph.x_pos, 116, BLACK);
         }
 
         /* Draw a "so much light"-line on the display */
