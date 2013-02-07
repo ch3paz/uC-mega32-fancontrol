@@ -285,10 +285,10 @@ int main(){
        * "I'm alive" message.
        */
       if (cntr_isr == 2){
-        LCD_ShowString(72, 8, BLUE, "*");
+        LCD_ShowString(72, 8, BLUE, "* ");
       }
       if (cntr_isr == 5){
-        LCD_ShowString(72, 8, BLUE, "#");
+        LCD_ShowString(72, 8, BLUE, " *");
         for (sensorSelect = 1; sensorSelect <=2; sensorSelect++){
           read_sensors(sensorSelect);
           drawTextOnlyFlag = TRUE;
