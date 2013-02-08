@@ -99,10 +99,10 @@
 
 /* Defaults for default_value_init() */
 #define HADIFF 1.5
-#define RHMIN 83.0
+#define RHMIN 82.5
 #define TMIN 10.0
-#define DELTAT 0.5
-#define DELTARH 1.5
+#define DELTAT 0.3
+#define DELTARH 1.0
 #define DELAY 20 /* --> 20*30s=600s , look at ISR/main() */
 
 /* Colors for LCD */
@@ -334,11 +334,11 @@ int main(){
 } /* main end - and YES, it's a stupid comment ;) */
 
 /* +-------------------------------------------------------------------+
- * |<<<<<<<<<<<<<<<<<<<<<<<<<<<< Functions >>>>>>>>>>>>>>>>>>>>>>>>>>>>|
+ * |<<<<<<<<<<<<<<<<<<<<<<<<< BEGIN FUNCTIONS >>>>>>>>>>>>>>>>>>>>>>>>>|
  * +-------------------------------------------------------------------+
  */
 
-/* Read sensors,  */
+/* Read sensors, sht75s and brightness */
 void read_sensors(uint8_t sensorSelect){
 
   ShtReset(sensorSelect);
@@ -351,7 +351,7 @@ void read_sensors(uint8_t sensorSelect){
     fan.haIn = sht75.AbsolutHumidity;
     fan.rhIn = sht75.Humidity;
     fan.tempIn = sht75.Temperature;
-    graph.y_brightness = adcReadOnce(6)/100;
+    graph.y_brightness = adcReadOnce(6)/10;
   }
   else{
     fan.haOut = sht75.AbsolutHumidity;
@@ -427,7 +427,7 @@ void draw_screen(uint8_t drawTextOnlyFlag){
         }
 
         /* Draw a "so much light"-line on the display */
-        LCD_setPixel(graph.x_pos, graph.y_brightness+104, LILAC);
+        LCD_setPixel(graph.x_pos, graph.y_brightness, LILAC);
 
         graph.x_pos++;
       }
