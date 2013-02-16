@@ -111,11 +111,11 @@
 #define WHITE 2
 #define BLACK 3
 #define GREEN1 4
-#define GREEN2 5
-#define GREEN3 6
+#define GREEN2 6
+#define GREEN3 5
 #define YELLOW1 7
-#define YELLOW2 8
-#define YELLOW3 9
+#define YELLOW2 9
+#define YELLOW3 8
 #define BLUE 10
 
 #define FILENAME "log.csv" /* Filename written to SD */
@@ -386,7 +386,7 @@ void draw_screen(uint8_t drawTextOnlyFlag){
          * first call of draw_screen()!
          */
 
-        /* Delete pixels if graph has gone down into textarea */ //FIXME works?
+        /* Delete pixels if graph has gone down into textarea */
         for (int i = 0; i <= 24; i++){
           LCD_setPixel(graph.x_pos, i, WHITE);
         }
@@ -456,6 +456,7 @@ void draw_screen(uint8_t drawTextOnlyFlag){
                 sprintf(mp_buffer, "DP%5.1fC", sht75.Dewpoint);
                 LCD_ShowString(95, 16, GREEN3, mp_buffer);
                 sprintf(mp_buffer, "%i", graph.y_brightness);
+                LCD_ShowString(72, 0, WHITE, "   ");
                 LCD_ShowString(72, 0, LILAC, mp_buffer);
                 break;
   }
@@ -906,7 +907,7 @@ void check_button_pressed(uint8_t doLogging, uint8_t powerDisplayFlag,
     }
   }
 
-  /* Invert display toggle */ //FIXME Seems this ifelseif is run 2 times?!
+  /* Invert display toggle */ //FIXME Seems this is running 2 times?!
   if (check_invert_display() == TRUE){
     if (invertDisplayFlag == FALSE){
       invertDisplayFlag = TRUE;
