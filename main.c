@@ -170,10 +170,12 @@ void write_data_to_file(uint8_t sensorSelect);
 void close_file();
 void init_timer();
 void _delay_s(uint8_t delay);
-void check_fan(double haIn, double haOut, double rhIn, double tempIn);
+void check_fan(double haIn, double haOut, double rhIn,
+               double tempIn, double tempOut);
 void check_uart();
 void check_button_pressed(uint8_t doLogging, uint8_t powerDisplayFlag,
-  uint8_t invertDisplayFlag, uint8_t powerDisplayBacklightFlag);
+                          uint8_t invertDisplayFlag,
+                          uint8_t powerDisplayBacklightFlag);
 void default_value_init();
 void send_data(uint32_t lastLines);
 uint8_t check_invert_display();
@@ -210,6 +212,7 @@ typedef struct fanst{
   double haOut;
   double rhIn;
   double tempIn;
+  double tempOut;
   uint8_t running;
 } fan_array;
 
@@ -309,7 +312,7 @@ int main(){
           draw_screen(drawTextOnlyFlag);
           write_data_to_file(sensorSelect);
         }
-        check_fan(fan.haIn, fan.haOut, fan.rhIn, fan.tempIn);
+        check_fan(fan.haIn, fan.haOut, fan.rhIn, fan.tempIn, fan.tempOut);
         cntr_graph = 0;
       }
 
@@ -354,6 +357,7 @@ void read_sensors(uint8_t sensorSelect){
     graph.y_brightness = adcReadOnce(6)/10;
   }
   else{
+    fan.tempOut = sht75.Temperature;
     fan.haOut = sht75.AbsolutHumidity;
   }
 
@@ -933,11 +937,13 @@ void check_button_pressed(uint8_t doLogging, uint8_t powerDisplayFlag,
 }
 
 /* Check conditions for running fans. */
-void check_fan(double haIn, double haOut, double rhIn, double tempIn){
+void check_fan(double haIn, double haOut, double rhIn,
+               double tempIn, double tempOut){
   if (
       ((haIn-haOut) >= values.min_ha_diff) &&
       (rhIn > values.min_rh) &&
-      (tempIn > values.min_temp)
+      (tempIn > values.min_temp) &&
+      (tempIn >= tempOut)
      ){
       /* Don't ignore the delta$-values :-P */
       switch (firstCycleFlag){
