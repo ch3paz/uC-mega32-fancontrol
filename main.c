@@ -98,9 +98,9 @@
 #define DEBUG TRUE
 
 /* Defaults for default_value_init() */
-#define HADIFF 1.5
+#define HADIFF 1.0
 #define RHMIN 82.5
-#define TMIN 10.0
+#define TMIN 15.0
 #define DELTAT 0.3
 #define DELTARH 1.0
 #define DELAY 20 /* --> 20*30s=600s , look at ISR/main() */
