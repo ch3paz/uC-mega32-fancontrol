@@ -75,6 +75,7 @@ MATH_LIB = -lm
 EXTMEMOPTS =
 
 #LDMAP = $(LDFLAGS) -Wl,-Map=$(TARGET).map,--cref
+#LDMAP = -Wl,-Map=$(TARGET).map
 LDFLAGS = $(EXTMEMOPTS) $(LDMAP) $(PRINTF_LIB_FLOAT) $(SCANF_LIB) $(MATH_LIB)
 
 

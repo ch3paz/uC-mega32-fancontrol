@@ -24,12 +24,10 @@ long_line_column=72
 
 [files]
 current_page=0
-FILE_NAME_0=10336;C;0;EUTF-8;0;1;1;%2Fhome%2Fchepaz%2Fprojekte%2Favr%2FuC-mega32-fancontrol%2Fmain.c;0;2
-FILE_NAME_1=0;C;0;EUTF-8;1;1;1;%2Fhome%2Fchepaz%2Fprojekte%2Favr%2FuC-mega32-fancontrol%2Fsht75.c;0;2
-FILE_NAME_2=0;C;0;EUTF-8;1;1;1;%2Fhome%2Fchepaz%2Fprojekte%2Favr%2FuC-mega32-fancontrol%2Fsht75.h;0;2
+FILE_NAME_0=32233;C;0;EUTF-8;0;1;0;%2Fhome%2Fchepaz%2Fcode%2Favr%2FuC-mega32-fancontrol%2Fmain.c;0;2
 
 [VTE]
-last_dir=/home/chepaz/projekte/avr/uC-mega32-fancontrol
+last_dir=/home/chepaz
 
 [build-menu]
 NF_00_LB=_Make

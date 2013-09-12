@@ -36,6 +36,7 @@
  *                            set.tmin:$bar      (double, in C)
  *                            set.deltat:$bar    (double, in C)
  *                            set.deltarh:$bar   (double, in %)
+ *                            set.deltaTD:$bar   (double, in C)
  *                    NOTICE: Smallest delay possible is 30s, everything
  *                            else is multiple of 30s.
  *                            set.delay:$bar     (int, in s (s/30!) )
@@ -98,11 +99,12 @@
 #define DEBUG TRUE
 
 /* Defaults for default_value_init() */
-#define HADIFF 1.0
-#define RHMIN 82.5
-#define TMIN 15.0
-#define DELTAT 0.3
+#define HADIFF 0.8
+#define RHMIN 80.0
+#define TMIN 14.0
+#define DELTAT 0.5
 #define DELTARH 1.0
+#define DELTATD 1.0
 #define DELAY 20 /* --> 20*30s=600s , look at ISR/main() */
 
 /* Colors for LCD */
@@ -128,7 +130,6 @@
 #include <avr/sleep.h>
 #include <avr/pgmspace.h>
 #include <avr/interrupt.h>
-//#include <util/delay.h>
 
 #include "analog.h"
 #include "sht75.h"
@@ -179,8 +180,8 @@ void check_button_pressed(uint8_t doLogging, uint8_t powerDisplayFlag,
 void default_value_init();
 void send_data(uint32_t lastLines);
 uint8_t check_invert_display();
-uint8_t check_power_display();
-uint8_t check_power_backlight_display();
+//uint8_t check_power_display();
+//uint8_t check_power_backlight_display();
 uint8_t check_logging();
 double cut_token();
 
@@ -197,13 +198,14 @@ double cut_token();
  * Values are initialized to defaults in default_value_init().
  */
 typedef struct min_valuesst{
-  double min_ha_diff;/* Difference of absolut humidity should be */
-  double min_rh;     /* Min humidityIn to run fans should be, in % */
-  double min_temp;   /* Min tempIn should always be */
-  double deltaT;     /* Run fans only when tempIn > min_temp+deltaT */
-  double deltaRH;    /* Run fans only when min_rh > min_rh+deltaRH */
-  uint16_t sensor_delay; /* Delay in seconds */
-  uint8_t send_data;     /* 0 don't send, 1 send */
+  double min_ha_diff;/* Difference of absolut humidity should be      */
+  double min_rh;     /* Min humidityIn to run fans should be, in %    */
+  double min_temp;   /* Min tempIn should always be                   */
+  double deltaT;     /* Run fans only when tempIn > min_temp+deltaT   */
+  double deltaRH;    /* Run fans only when min_rh > min_rh+deltaRH    */
+  double deltaTD;    /* Run fans when tempOut+deltaTD >= tempIn       */
+  uint16_t sensor_delay; /* Delay in seconds                          */
+  uint8_t send_data;     /* 0 don't send, 1 send                      */
 } values_array;
 
 /* Struct for the fan(s) */
@@ -250,11 +252,6 @@ char uart_rcv[45];       /* Receive buffer for incoming data             */
 char header[] = "Ti;RHi;AHi;DPi;To;RHo;AHo;DPo;Br.;Fan\n";
 
 int main(){
-  /* Wait 1500ms, let all electrons come down :)
-   * (sht75 and sd _eventually_ need this)
-   */
-  //_delay_ms(1500);
-
   /* Set up everything */
   port_init();
   uart_init();
@@ -763,6 +760,9 @@ void check_uart(){
     sprintf(mp_buffer, "%02.1f", values.deltaT);
     uart_sendstring("DeltaT: ");
     uart_sendstring(mp_buffer); uart_sendchar(*lf);
+    sprintf(mp_buffer, "%02.1f", values.deltaTD);
+    uart_sendstring("DeltaTD: ");
+    uart_sendstring(mp_buffer); uart_sendchar(*lf);
     sprintf(mp_buffer, "%02.1f", values.deltaRH);
     uart_sendstring("DeltaRH: ");
     uart_sendstring(mp_buffer); uart_sendchar(*lf);
@@ -806,6 +806,13 @@ void check_uart(){
     uart_sendchar(*lf);
   }
 
+  /* Catch new active values --> Set temperature deltaTD */
+  else if (strncmp(mp_buffer, "set.deltatd:", 11) == 0){
+    values.deltaTD = cut_token();
+    uart_sendstring("deltaTD set to: "); uart_sendstring(mp_buffer);
+    uart_sendchar(*lf);
+  }
+
   /* Catch new active values --> Set relative humidity deltaRH */
   else if (strncmp(mp_buffer, "set.deltarh:", 12) == 0){
     values.deltaRH = cut_token();
@@ -830,41 +837,41 @@ void check_uart(){
     uart_sendchar(*lf);
   }
 
-  /* Display power on/off (NOT the backlight!) */
-  else if (strncmp (mp_buffer, "set.disp.pwr:", 13) == 0){
-    int val = (int) cut_token() + 0.5; /* CASTlevania */
+  ///* Display power on/off (NOT the backlight!) */
+  //else if (strncmp (mp_buffer, "set.disp.pwr:", 13) == 0){
+    //int val = (int) cut_token() + 0.5; /* CASTlevania */
 
-    if (val == 1){
-      powerDisplayFlag = TRUE;
-      LCD_init(invertDisplayFlag, powerDisplayFlag);
-      uart_sendstring("Display power on.");
-      uart_sendchar(*lf);
-    }
-    else{
-      powerDisplayFlag = FALSE;
-      LCD_init(invertDisplayFlag, powerDisplayFlag);
-      uart_sendstring("Display power off.");
-      uart_sendchar(*lf);
-    }
-  }
+    //if (val == 1){
+      //powerDisplayFlag = TRUE;
+      //LCD_init(invertDisplayFlag, powerDisplayFlag);
+      //uart_sendstring("Display power on.");
+      //uart_sendchar(*lf);
+    //}
+    //else{
+      //powerDisplayFlag = FALSE;
+      //LCD_init(invertDisplayFlag, powerDisplayFlag);
+      //uart_sendstring("Display power off.");
+      //uart_sendchar(*lf);
+    //}
+  //}
 
-  /* Display Backlight power on/off */
-  else if (strncmp (mp_buffer, "set.disp.bklt:", 14) == 0){
-    int val = (int) cut_token() + 0.5; /* CASTlevania */
+  ///* Display Backlight power on/off */
+  //else if (strncmp (mp_buffer, "set.disp.bklt:", 14) == 0){
+    //int val = (int) cut_token() + 0.5; /* CASTlevania */
 
-    if (val == 1){
-      powerDisplayBacklightFlag = TRUE;
-      PORTA |= (1<<PA4);
-      uart_sendstring("Display backlight power on.");
-      uart_sendchar(*lf);
-    }
-    else{
-      powerDisplayBacklightFlag = FALSE;
-      PORTA &= ~(1<<PA4);
-      uart_sendstring("Display backlight power off.");
-      uart_sendchar(*lf);
-    }
-  }
+    //if (val == 1){
+      //powerDisplayBacklightFlag = TRUE;
+      //PORTA |= (1<<PA4);
+      //uart_sendstring("Display backlight power on.");
+      //uart_sendchar(*lf);
+    //}
+    //else{
+      //powerDisplayBacklightFlag = FALSE;
+      //PORTA &= ~(1<<PA4);
+      //uart_sendstring("Display backlight power off.");
+      //uart_sendchar(*lf);
+    //}
+  //}
 
   /* Invert/Deinvert display */
   else if (strncmp (mp_buffer, "set.disp.inv:", 13) == 0){
@@ -884,7 +891,7 @@ void check_uart(){
     }
   }
   else {
-    uart_sendstring("Possible commands:\nping\nget.data:\nget.values\nset.server\nset.tmin:\nset.deltat:\nset.deltarh:\nset.rhmin:\nset.hadiff:\nset.delay:\nset.disp.pwr:\nset.disp.inv:\nset.disp.bklt:\n");
+    uart_sendstring("Possible commands:\nping\nget.data:\nget.values\nset.server\nset.tmin:\nset.deltat:\nset.deltatd:\nset.deltarh:\nset.rhmin:\nset.hadiff:\nset.delay:\nset.disp.pwr:\nset.disp.inv:\nset.disp.bklt:\n");
   }
 }
 
@@ -899,17 +906,17 @@ void check_button_pressed(uint8_t doLogging, uint8_t powerDisplayFlag,
     LCD_ShowString(12, 59, RED, "interval is over!");
   }
 
-  /* Display power on/off (NOT backlight!) */
-  if (check_power_display() == TRUE){
-    if (powerDisplayFlag == FALSE){
-      powerDisplayFlag = TRUE;
-      LCD_init(invertDisplayFlag, powerDisplayFlag);
-    }
-    else if (powerDisplayFlag == TRUE){
-      powerDisplayFlag = FALSE;
-      LCD_init(invertDisplayFlag, powerDisplayFlag);
-    }
-  }
+  ///* Display power on/off (NOT backlight!) */
+  //if (check_power_display() == TRUE){
+    //if (powerDisplayFlag == FALSE){
+      //powerDisplayFlag = TRUE;
+      //LCD_init(invertDisplayFlag, powerDisplayFlag);
+    //}
+    //else if (powerDisplayFlag == TRUE){
+      //powerDisplayFlag = FALSE;
+      //LCD_init(invertDisplayFlag, powerDisplayFlag);
+    //}
+  //}
 
   /* Invert display toggle */ //FIXME Seems this is running 2 times?!
   if (check_invert_display() == TRUE){
@@ -923,17 +930,17 @@ void check_button_pressed(uint8_t doLogging, uint8_t powerDisplayFlag,
     }
   }
 
-  /* Backlight display toggle */
-  if (check_power_backlight_display() == TRUE){
-    if (powerDisplayBacklightFlag == FALSE){
-      powerDisplayBacklightFlag = TRUE;
-      PORTA ^= (1<<PA4);
-    }
-    else if (powerDisplayBacklightFlag == TRUE){
-      powerDisplayBacklightFlag = FALSE;
-      PORTA ^= (1<<PA4);
-    }
-  }
+  ///* Backlight display toggle */
+  //if (check_power_backlight_display() == TRUE){
+    //if (powerDisplayBacklightFlag == FALSE){
+      //powerDisplayBacklightFlag = TRUE;
+      //PORTA ^= (1<<PA4);
+    //}
+    //else if (powerDisplayBacklightFlag == TRUE){
+      //powerDisplayBacklightFlag = FALSE;
+      //PORTA ^= (1<<PA4);
+    //}
+  //}
 }
 
 /* Check conditions for running fans. */
@@ -943,7 +950,7 @@ void check_fan(double haIn, double haOut, double rhIn,
       ((haIn-haOut) >= values.min_ha_diff) &&
       (rhIn > values.min_rh) &&
       (tempIn > values.min_temp) &&
-      (tempIn >= tempOut)
+      (tempIn >= (tempOut - values.deltaTD))
      ){
       /* Don't ignore the delta$-values :-P */
       switch (firstCycleFlag){
@@ -974,6 +981,7 @@ void default_value_init(){
   values.min_temp = TMIN;
   values.deltaT = DELTAT;
   values.deltaRH = DELTARH;
+  values.deltaTD = DELTATD;
   values.sensor_delay = DELAY; /* 540s on 160px ~= 24 hours on display */
 }
 
@@ -1121,41 +1129,41 @@ uint8_t check_invert_display(){
   }
 }
 
-uint8_t check_power_display(){
-  int buttonValue = 0;
+//uint8_t check_power_display(){
+  //int buttonValue = 0;
 
-  /* Get an average value from the button */
-  for (int i = 0; i< 3; i++){
-    buttonValue += adcReadOnce(BUTTONPIN);
-    buttonValue = buttonValue/3;
-  }
+  ///* Get an average value from the button */
+  //for (int i = 0; i< 3; i++){
+    //buttonValue += adcReadOnce(BUTTONPIN);
+    //buttonValue = buttonValue/3;
+  //}
 
-  /* Is it button No.3? */
-  if ((buttonValue >= 120) && (buttonValue <= 150)){
-    return TRUE;
-  }
-  else{
-    return FALSE;
-  }
-}
+  ///* Is it button No.3? */
+  //if ((buttonValue >= 120) && (buttonValue <= 150)){
+    //return TRUE;
+  //}
+  //else{
+    //return FALSE;
+  //}
+//}
 
-uint8_t check_power_backlight_display(){
-  int buttonValue = 0;
+//uint8_t check_power_backlight_display(){
+  //int buttonValue = 0;
 
-  /* Get an average value from the button */
-  for (int i = 0; i< 3; i++){
-    buttonValue += adcReadOnce(BUTTONPIN);
-    buttonValue = buttonValue/3;
-  }
+  ///* Get an average value from the button */
+  //for (int i = 0; i< 3; i++){
+    //buttonValue += adcReadOnce(BUTTONPIN);
+    //buttonValue = buttonValue/3;
+  //}
 
-  /* Is it button No.4? */
-  if ((buttonValue >= 95) && (buttonValue <= 115)){
-    return TRUE;
-  }
-  else{
-    return FALSE;
-  }
-}
+  ///* Is it button No.4? */
+  //if ((buttonValue >= 95) && (buttonValue <= 115)){
+    //return TRUE;
+  //}
+  //else{
+    //return FALSE;
+  //}
+//}
 
 /* ISR for save ejecting the SD and stuff for the display */
 ISR(TIMER1_OVF_vect){
